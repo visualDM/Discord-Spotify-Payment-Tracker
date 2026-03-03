@@ -55,8 +55,6 @@ def init_db():
             c.execute("ALTER TABLE groups ADD COLUMN channel_id INTEGER")
         except sqlite3.OperationalError:
             pass # Column exists
-        
-        conn.commit()
 
 # --- Group Management ---
 def create_group(name, channel_id=None):
