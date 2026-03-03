@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify Payment Dashboard</title>
+    <style>
+        :root {
+            --spotify-green: #1DB954;
+            --spotify-black: #191414;
+            --spotify-grey: #535353;
+            --spotify-white: #FFFFFF;
+            --bg-dark: #121212;
+            --card-bg: #181818;
+            --hover-bg: #282828;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--spotify-white);
+            font-family: 'Circular', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 40px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-weight: 900;
+        }
+
+        .group-card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, .5);
+        }
+
+        .group-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--spotify-grey);
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+
+        .group-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--spotify-green);
+        }
+
+        .controls {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            color: #b3b3b3;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid #282828;
+        }
+
+        tr:hover {
+            background-color: var(--hover-bg);
+        }
+
+        .member-name {
+            color: var(--spotify-white);
+            font-weight: 500;
+        }
+
+        .balance.positive {
+            color: var(--spotify-green);
+        }
+
+        .balance.negative {
+            color: #ff5555;
+        }
+
+        .btn {
+            background-color: var(--spotify-green);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 500px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-size: 0.8em;
+        }
+
+        .btn:hover {
+            filter: brightness(1.1);
+        }
+
+        .btn-sm {
+            padding: 4px 10px;
+            font-size: 0.7em;
+        }
+
+        input {
+            background: #333;
+            border: none;
+            color: white;
+            padding: 6px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Spotify Families</h1>
+
+        {% for group, members in groups_data.items() %}
+        <div class="group-card">
+            <div class="group-header">
+                <div class="group-title">{{ group['name'] }}</div>
+                <div class="controls">
+                    <form action="/api/set_cost" method="POST">
+                        <input type="hidden" name="group_id" value="{{ group['id'] }}">
+                        <label>Cost:</label>
+                        <input type="number" name="amount" value="{{ group['monthly_cost'] }}" style="width: 60px;">
+                        <button class="btn btn-sm">Set</button>
+                    </form>
+                    <form action="/api/advance" method="POST">
+                        <input type="hidden" name="group_id" value="{{ group['id'] }}">
+                        <button class="btn" style="background-color: #535353;">Process Month</button>
+                    </form>
+                </div>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>GCash Name</th>
+                        <th>Balance</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for member in members %}
+                    <tr>
+                        <td class="member-name">{{ member['name'] }}</td>
+                        <td style="font-size: 0.8em;">{{ member['gcash_name'] if member['gcash_name'] else '-' }}</td>
+                        <td class="balance {% if member['balance'] >= 0 %}positive{% else %}negative{% endif %}">
+                            ₱ {{ "%.2f"|format(member['balance']) }}
+                        </td>
+                        <td>
+                            <form action="/api/pay" method="POST" style="display:flex; gap: 5px;">
+                                <input type="hidden" name="user_id" value="{{ member['user_id'] }}">
+                                <input type="number" name="amount" placeholder="+" style="width: 60px;" required>
+                                <button class="btn btn-sm">Pay</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% if not members %}
+            <div style="padding: 20px; text-align: center; color: #666;">No members in this family.</div>
+            {% endif %}
+        </div>
+        {% endfor %}
+
+        {% if not groups_data %}
+        <div style="text-align:center; padding: 40px;">
+            <h2>No families created yet.</h2>
+            <p>Use <code>!create_family "Name"</code> in Discord.</p>
+        </div>
+        {% endif %}
+    </div>
+</body>
+
+</html>
