@@ -2,7 +2,6 @@ import imaplib
 import email
 from email.header import decode_header
 import re
-import os
 import datetime
 
 # GCash Email Subject Pattern

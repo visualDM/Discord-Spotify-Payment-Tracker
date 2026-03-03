@@ -89,14 +89,6 @@ async def notify_negative_balances(group_id, ctx=None):
             
             if user:
                 mentions.append(user.mention)
-                
-                # # ALWAYS DM the user
-                # try:
-                #     gif_url = "https://media1.tenor.com/m/j-w-shg3C3kAAAAC/where-is-the-money-lebowski.gif"
-                #     await user.send(f"⚠️ **Insufficient Funds!**\nYour balance is **{m['balance']:.2f}php** in group '{group['name']}'.\nPlease top up immediately!")
-                #     await user.send(gif_url)
-                # except Exception as e:
-                #     print(f"Failed to DM user {m['name']}: {e}")
 
     # Send public shame message if we have a valid channel context
     if sender and mentions:
@@ -283,7 +275,7 @@ async def advance_month(ctx):
 
 @bot.command(name='link_gcash')
 async def link_gcash(ctx, *, full_name: str):
-    """NOT IMPLEMENTED CAUSE FUCK YOU GCASH"""
+    """Link your GCash name for automatic payment detection."""
     caller = database.get_member(ctx.author.id)
     if not caller:
         await ctx.send("Join a family first.")
